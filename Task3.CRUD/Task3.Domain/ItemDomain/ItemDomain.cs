@@ -40,17 +40,22 @@ namespace Task3.Domain.ItemDomain
 
         public async Task<CommandResponse> DeleteAsync(int itemId)
         {
-            try
+            var item = await mItemRepository.GetByIdAsync(itemId);
+
+            if(item is not null)
             {
-                await mItemRepository.DeleteAsync(itemId);
-                return CommandResponse.Succeeded();
-            }
-            catch(Exception ex)
-            {
-                return CommandResponse.Failed(ex.Message);
+                try
+                {
+                    await mItemRepository.DeleteAsync(itemId);
+                    return CommandResponse.Succeeded();
+                }
+                catch(Exception ex)
+                {
+                    return CommandResponse.Failed(ex.Message);
+                }
             }
 
-            return CommandResponse.Failed();
+            return CommandResponse.Failed($"Item with ID [{itemId}] was not be found");
         }
 
         public async Task<CommandResponse<IEnumerable<ItemResponseBase>>> GetAllAsync(PaginatedRequest paginatedRequest)
